@@ -7,7 +7,7 @@ public class Payment {
     private final String paymentId;
     private final BigDecimal amount;
     private final PaymentMethod paymentMethod;
-    private final PaymentStatus status;
+    private PaymentStatus status;
 
     public Payment(String paymentId, BigDecimal amount, PaymentMethod paymentMethod) {
         this.paymentId = paymentId;
@@ -18,5 +18,13 @@ public class Payment {
 
     public PaymentStatus getStatus() {
         return status;
+    }
+
+    public void setStatus(PaymentStatus status){
+        this.status = status;
+    }
+
+    public BigDecimal getAmount(){
+        return amount;
     }
 }
