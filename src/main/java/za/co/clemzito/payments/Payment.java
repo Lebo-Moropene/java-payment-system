@@ -2,6 +2,10 @@ package za.co.clemzito.payments;
 
 import java.math.BigDecimal;
 
+/**
+ * Represents a single payment, including its identifier, amount, payment
+ * method and current lifecycle status.
+ */
 public class Payment {
 
     private final String paymentId;

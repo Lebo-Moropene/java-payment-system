@@ -1,3 +1,4 @@
+
 package za.co.clemzito.payments;
 
 import org.junit.jupiter.api.Test;
@@ -5,26 +6,33 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests that verify the constants exposed by the {@link PaymentMethod} enum.
+ * Tests for the {@link PaymentMethod} enum.
  */
-public class PaymentMethodTest {
+class PaymentMethodTest {
 
-    /**
-     * Verifies that the debit card method can be resolved by name.
-     */
     @Test
-    void shouldHaveDebitCardMethod(){
+    void shouldContainThreePaymentMethods() {
+        assertEquals(3, PaymentMethod.values().length);
+    }
+
+    @Test
+    void shouldSupportCreditCard() {
+        assertEquals(
+                PaymentMethod.CREDIT_CARD,
+                PaymentMethod.valueOf("CREDIT_CARD")
+        );
+    }
+
+    @Test
+    void shouldSupportDebitCard() {
         assertEquals(
                 PaymentMethod.DEBIT_CARD,
                 PaymentMethod.valueOf("DEBIT_CARD")
         );
     }
 
-    /**
-     * Verifies that the electronic funds transfer method can be resolved by name.
-     */
     @Test
-    void shouldHaveEftMethods(){
+    void shouldSupportEft() {
         assertEquals(
                 PaymentMethod.EFT,
                 PaymentMethod.valueOf("EFT")
