@@ -1,9 +1,11 @@
+
 package za.co.clemzito.payments;
 
 /**
- * The methods available for settling a {@link Payment}.
+ * The methods available for settling a Payment.
  */
 public enum PaymentMethod {
+
     /**
      * The payment is funded by a credit card.
      */
