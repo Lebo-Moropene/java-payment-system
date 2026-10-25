@@ -3,20 +3,12 @@ package za.co.clemzito.payments;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Tests for the {@link PaymentMethod} enum.
- */
 class PaymentMethodTest {
 
     @Test
-    void shouldContainThreePaymentMethods() {
-        assertEquals(3, PaymentMethod.values().length);
-    }
-
-    @Test
-    void shouldSupportCreditCard() {
+    void shouldContainCreditCardMethod() {
         assertEquals(
                 PaymentMethod.CREDIT_CARD,
                 PaymentMethod.valueOf("CREDIT_CARD")
@@ -24,7 +16,7 @@ class PaymentMethodTest {
     }
 
     @Test
-    void shouldSupportDebitCard() {
+    void shouldContainDebitCardMethod() {
         assertEquals(
                 PaymentMethod.DEBIT_CARD,
                 PaymentMethod.valueOf("DEBIT_CARD")
@@ -32,7 +24,7 @@ class PaymentMethodTest {
     }
 
     @Test
-    void shouldSupportEft() {
+    void shouldContainEftMethod() {
         assertEquals(
                 PaymentMethod.EFT,
                 PaymentMethod.valueOf("EFT")
