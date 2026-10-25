@@ -2,7 +2,7 @@ package za.co.clemzito.payments;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for the {@link PaymentService} class.
@@ -31,4 +31,33 @@ public class PaymentServiceTest {
         paymentService.processPayment(payment);
         assertEquals(PaymentStatus.FAILED, payment.getStatus());
     }
+
+
+    @Test
+    void shouldRejectPaymentWithNegativeAmount() {
+        Payment payment = new Payment(
+                "PAY-003",
+                new BigDecimal("-50.00"),
+                PaymentMethod.DEBIT_CARD
+        );
+
+        PaymentService paymentService = new PaymentService();
+
+        paymentService.processPayment(payment);
+
+        assertEquals(PaymentStatus.FAILED, payment.getStatus());
+    }
+
+    @Test
+    void shouldRejectNullPayment() {
+        PaymentService paymentService = new PaymentService();
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> paymentService.processPayment(null)
+        );
+
+        assertEquals("Payment cannot be null", exception.getMessage());
+    }
+
 }
