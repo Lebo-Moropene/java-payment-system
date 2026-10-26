@@ -90,4 +90,23 @@ public class PaymentServiceTest {
         );
 
     }
+
+    @Test
+    void shouldRejectAlreadyProcessedPayment() {
+        PaymentRepository repository = new PaymentRepository();
+        PaymentService paymentService = new PaymentService(repository);
+
+        Payment payment = new Payment(
+                "PAY-005",
+                new BigDecimal("200.00"),
+                PaymentMethod.CREDIT_CARD
+        );
+
+        paymentService.processPayment(payment);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> paymentService.processPayment(payment)
+        );
+    }
 }
