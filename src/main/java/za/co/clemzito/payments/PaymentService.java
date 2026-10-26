@@ -21,6 +21,13 @@ public class PaymentService {
     public void processPayment(Payment payment) {
         Objects.requireNonNull(payment, "Payment cannot be null");
 
+        if (payment.getStatus() != PaymentStatus.PENDING){
+            throw new IllegalStateException(
+                    "Payment has already been processed"
+            );
+        }
+
+
         if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             payment.setStatus(PaymentStatus.FAILED);
 
