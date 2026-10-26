@@ -109,4 +109,29 @@ public class PaymentServiceTest {
                 () -> paymentService.processPayment(payment)
         );
     }
+
+    @Test
+    void shouldRejectReprocessingFailedPayment(){
+        PaymentRepository repository = new PaymentRepository();
+        PaymentService paymentService = new PaymentService(repository);
+
+        Payment payment = new Payment(
+                "PAY-006",
+                new BigDecimal("0.00"),
+                PaymentMethod.CREDIT_CARD
+        );
+
+        paymentService.processPayment(payment);
+
+        assertEquals(PaymentStatus.FAILED, payment.getStatus());
+        assertEquals(
+                PaymentStatus.FAILED,
+                repository.findById("PAY-006").orElseThrow().getStatus()
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> paymentService.processPayment(payment)
+        );
+    }
 }
