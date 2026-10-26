@@ -9,7 +9,13 @@ import java.util.Objects;
  */
 public class PaymentService {
 
-    public PaymentService() {
+    private final PaymentRepository repository;
+
+    public PaymentService(PaymentRepository repository){
+        this.repository = Objects.requireNonNull(
+                repository,
+                "Payment repository cannot be null"
+        );
     }
 
     public void processPayment(Payment payment) {
@@ -17,9 +23,11 @@ public class PaymentService {
 
         if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             payment.setStatus(PaymentStatus.FAILED);
-            return;
-        }
 
-        payment.setStatus(PaymentStatus.SUCCESSFUL);
+        }else {
+            payment.setStatus(PaymentStatus.SUCCESSFUL);
+        }
+        repository.save(payment);
+
     }
 }
