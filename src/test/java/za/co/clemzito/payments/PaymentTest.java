@@ -61,4 +61,19 @@ class PaymentTest {
                 new Payment("PAY-001", new BigDecimal("100.00"), null)
         );
     }
+
+    @Test
+    void shouldKeepPaymentDetailsUnchangedWhenStatusChanges(){
+        Payment payment = new Payment(
+                "PAY-006",
+                new BigDecimal("250.00"),
+                PaymentMethod.DEBIT_CARD
+        );
+        payment.setStatus(PaymentStatus.SUCCESSFUL);
+
+        assertEquals("PAY-006", payment.getPaymentId());
+        assertEquals(new BigDecimal("250.00"), payment.getAmount());
+        assertEquals(PaymentMethod.DEBIT_CARD, payment.getPaymentMethod());
+        assertEquals(PaymentStatus.SUCCESSFUL, payment.getStatus());
+    }
 }
