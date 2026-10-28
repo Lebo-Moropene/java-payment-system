@@ -8,11 +8,6 @@ package za.co.clemzito;
  */
 public class Main {
 
-    /**
-     * Creates the application entry point.
-     */
-    public Main() {
-    }
 
     /**
      * Runs the Payment System demo.
