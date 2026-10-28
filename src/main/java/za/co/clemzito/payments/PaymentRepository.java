@@ -18,11 +18,7 @@ public class PaymentRepository {
      */
     private final Map<String, Payment> payments = new HashMap<>();
 
-    /**
-     * Creates a new {@code PaymentRepository} instance.
-     */
-    public PaymentRepository() {
-    }
+
 
     /**
      * Saves a payment to the repository.
