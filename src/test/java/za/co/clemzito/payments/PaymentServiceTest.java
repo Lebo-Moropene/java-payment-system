@@ -17,7 +17,7 @@ public class PaymentServiceTest {
                 new BigDecimal("100.00"),
                 PaymentMethod.CREDIT_CARD
         );
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
         paymentService.processPayment(payment);
         assertEquals(PaymentStatus.SUCCESSFUL, payment.getStatus());
@@ -30,7 +30,7 @@ public class PaymentServiceTest {
                 new BigDecimal("0.00"),
                 PaymentMethod.CREDIT_CARD
         );
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         paymentService.processPayment(payment);
@@ -47,7 +47,7 @@ public class PaymentServiceTest {
                 PaymentMethod.DEBIT_CARD
         );
 
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         paymentService.processPayment(payment);
@@ -57,7 +57,7 @@ public class PaymentServiceTest {
 
     @Test
     void shouldRejectNullPayment() {
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         NullPointerException exception = assertThrows(
@@ -70,7 +70,7 @@ public class PaymentServiceTest {
 
     @Test
     void shouldSaveProcessedPaymentInRepository() {
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         Payment payment = new Payment(
@@ -93,7 +93,7 @@ public class PaymentServiceTest {
 
     @Test
     void shouldRejectAlreadyProcessedPayment() {
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         Payment payment = new Payment(
@@ -112,7 +112,7 @@ public class PaymentServiceTest {
 
     @Test
     void shouldRejectReprocessingFailedPayment(){
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         Payment payment = new Payment(

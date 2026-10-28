@@ -13,7 +13,7 @@ import java.util.Optional;
 
 
 
-public class SqlitePaymentRepository {
+public class SqlitePaymentRepository implements PaymentRepository {
     private final DatabaseConnection databaseConnection;
 
     public SqlitePaymentRepository(String databaseUrl){

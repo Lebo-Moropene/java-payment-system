@@ -13,7 +13,7 @@ public class PaymentRepositoryTest {
 
     @Test
     void shouldSaveAndFindPaymentById(){
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
 
         Payment payment = new Payment(
                 "PAY-101",
@@ -32,7 +32,7 @@ public class PaymentRepositoryTest {
 
     @Test
     void shouldRejectNullPayment() {
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
 
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
@@ -43,7 +43,7 @@ public class PaymentRepositoryTest {
 
     @Test
     void shouldReturnEmptyWhenPaymentDoesNotExist(){
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
 
         Optional<Payment> result = repository.findById("PAY-999");
 
@@ -52,7 +52,7 @@ public class PaymentRepositoryTest {
 
     @Test
     void shouldRejectDuplicatePaymentId(){
-        PaymentRepository repository = new PaymentRepository();
+        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
 
         Payment firstPayment = new Payment(
                 "PAY-200",
