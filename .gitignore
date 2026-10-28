@@ -47,3 +47,6 @@ logs/
 
 # IntelliJ IDEA
 .idea/
+
+# Local SQLite database
+payments.db
