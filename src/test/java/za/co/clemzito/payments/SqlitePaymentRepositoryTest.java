@@ -41,4 +41,25 @@ public class SqlitePaymentRepositoryTest {
         assertEquals(PaymentStatus.PENDING, retrievePayment.getStatus());
 
     }
+
+    @Test
+    void shouldRestorePaymentsStatusWhenRetrievedFromDatabase(){
+        String databaseUrl = "jdbc:sqlite:"
+                + tempDir.resolve("status-test.db").toAbsolutePath();
+
+        SqlitePaymentRepository repository =
+                new SqlitePaymentRepository(databaseUrl);
+
+        Payment payment = new Payment(
+                "PAY-302",
+                new BigDecimal("250.00"),
+                PaymentMethod.DEBIT_CARD
+        );
+         payment.setStatus(PaymentStatus.SUCCESSFUL);
+         repository.save(payment);
+
+         Payment retrievedPayment = repository.findById("PAY-302")
+                 .orElseThrow();
+         assertEquals(PaymentStatus.SUCCESSFUL, retrievedPayment.getStatus());
+    }
 }
