@@ -1,18 +1,14 @@
 
 package za.co.clemzito;
 
-import za.co.clemzito.payments.Payment;
-import za.co.clemzito.payments.PaymentMethod;
+import io.javalin.Javalin;
+import za.co.clemzito.api.PaymentApi;
 import za.co.clemzito.payments.PaymentService;
 import za.co.clemzito.payments.SqlitePaymentRepository;
-
-import java.math.BigDecimal;
 
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Welcome to the Payment System");
-
         String databaseUrl = "jdbc:sqlite:payments.db";
 
         SqlitePaymentRepository repository =
@@ -21,32 +17,15 @@ public class Main {
         PaymentService paymentService =
                 new PaymentService(repository);
 
-        String paymentId = "PAY-001";
+        PaymentApi paymentApi =
+                new PaymentApi(paymentService, repository);
 
-        var existingPayment = repository.findById(paymentId);
+        Javalin app = paymentApi.getApp();
 
-        if (existingPayment.isPresent()) {
-            System.out.println("Payment already exists.");
-            displayPayment(existingPayment.get());
-            return;
-        }
+        app.start(7000);
 
-        Payment payment = new Payment(
-                paymentId,
-                new BigDecimal("250.00"),
-                PaymentMethod.CREDIT_CARD
+        System.out.println(
+                "Payment API is running at http://localhost:7000"
         );
-
-        paymentService.processPayment(payment);
-
-        System.out.println("Payment saved successfully.");
-        displayPayment(payment);
-    }
-
-    private static void displayPayment(Payment payment) {
-        System.out.println("Payment ID: " + payment.getPaymentId());
-        System.out.println("Amount: R" + payment.getAmount());
-        System.out.println("Method: " + payment.getPaymentMethod());
-        System.out.println("Status: " + payment.getStatus());
     }
 }

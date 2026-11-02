@@ -1,3 +1,4 @@
+
 package za.co.clemzito.api;
 
 import io.javalin.Javalin;
@@ -10,9 +11,8 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
 
-import java.beans.JavaBean;
-
 public class PaymentApi {
+
     private final Javalin app;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
@@ -20,18 +20,50 @@ public class PaymentApi {
     public PaymentApi(
             PaymentService paymentService,
             PaymentRepository paymentRepository
-    ){
-        this.paymentService = Objects.requireNonNull(paymentService);
-        this.paymentRepository = Objects.requireNonNull(paymentRepository);
+    ) {
+        this.paymentService = Objects.requireNonNull(
+                paymentService,
+                "Payment service cannot be null"
+        );
+
+        this.paymentRepository = Objects.requireNonNull(
+                paymentRepository,
+                "Payment repository cannot be null"
+        );
 
         app = Javalin.create();
 
+        // Check whether the API is running.
         app.get("/health", ctx ->
                 ctx.json(Map.of("status", "UP"))
         );
 
-        app.post("/payments", ctx->{
-            try{
+        // Retrieve an existing payment by its ID.
+        app.get("/payments/{paymentId}", ctx -> {
+            String paymentId = ctx.pathParam("paymentId");
+
+            var paymentResult = paymentRepository.findById(paymentId);
+
+            if (paymentResult.isEmpty()) {
+                ctx.status(404).json(Map.of(
+                        "error", "Payment not found"
+                ));
+                return;
+            }
+
+            Payment payment = paymentResult.get();
+
+            ctx.status(200).json(Map.of(
+                    "paymentId", payment.getPaymentId(),
+                    "amount", payment.getAmount(),
+                    "paymentMethod", payment.getPaymentMethod(),
+                    "status", payment.getStatus()
+            ));
+        });
+
+        // Create and process a new payment.
+        app.post("/payments", ctx -> {
+            try {
                 PaymentRequest request =
                         ctx.bodyAsClass(PaymentRequest.class);
 
@@ -40,6 +72,7 @@ public class PaymentApi {
                         new BigDecimal(request.amount),
                         PaymentMethod.valueOf(request.paymentMethod)
                 );
+
                 paymentService.processPayment(payment);
 
                 ctx.status(201).json(Map.of(
@@ -48,23 +81,23 @@ public class PaymentApi {
                         "paymentMethod", payment.getPaymentMethod(),
                         "status", payment.getStatus()
                 ));
-            }catch (IllegalArgumentException exception) {
+
+            } catch (IllegalArgumentException exception) {
                 ctx.status(400).json(Map.of(
                         "error", "Invalid payment details"
                 ));
             }
-            });
-        }
-
-        public Javalin getApp(){
-            return app;
-        }
-
-        public static class PaymentRequest{
-            public String paymentId;
-            public String amount;
-            public String paymentMethod;
-
+        });
     }
 
+    public Javalin getApp() {
+        return app;
+    }
+
+    public static class PaymentRequest {
+
+        public String paymentId;
+        public String amount;
+        public String paymentMethod;
+    }
 }
