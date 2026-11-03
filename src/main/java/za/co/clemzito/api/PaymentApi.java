@@ -8,6 +8,7 @@ import za.co.clemzito.payments.PaymentRepository;
 import za.co.clemzito.payments.PaymentService;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -35,11 +36,29 @@ public class PaymentApi {
 
         // Check whether the API is running.
         app.get("/health", ctx ->
-                ctx.json(Map.of("status", "UP"))
+                ctx.status(200).json(Map.of("status", "UP"))
         );
+
+        // Retrieve all payments.
+        app.get("/payments", ctx -> {
+
+            List<Payment> payments = paymentRepository.findAll();
+
+            List<Map<String, Object>> response = payments.stream()
+                    .map(payment -> Map.<String, Object>of(
+                            "paymentId", payment.getPaymentId(),
+                            "amount", payment.getAmount(),
+                            "paymentMethod", payment.getPaymentMethod(),
+                            "status", payment.getStatus()
+                    ))
+                    .toList();
+
+            ctx.status(200).json(response);
+        });
 
         // Retrieve an existing payment by its ID.
         app.get("/payments/{paymentId}", ctx -> {
+
             String paymentId = ctx.pathParam("paymentId");
 
             var paymentResult = paymentRepository.findById(paymentId);
@@ -63,6 +82,7 @@ public class PaymentApi {
 
         // Create and process a new payment.
         app.post("/payments", ctx -> {
+
             try {
                 PaymentRequest request =
                         ctx.bodyAsClass(PaymentRequest.class);
@@ -83,6 +103,7 @@ public class PaymentApi {
                 ));
 
             } catch (IllegalArgumentException exception) {
+
                 ctx.status(400).json(Map.of(
                         "error", "Invalid payment details"
                 ));

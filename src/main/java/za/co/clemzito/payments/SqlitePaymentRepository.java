@@ -1,4 +1,6 @@
+
 package za.co.clemzito.payments;
+
 import za.co.clemzito.database.DatabaseConnection;
 
 import java.math.BigDecimal;
@@ -7,36 +9,35 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-
-
-
-
 public class SqlitePaymentRepository implements PaymentRepository {
+
     private final DatabaseConnection databaseConnection;
 
-    public SqlitePaymentRepository(String databaseUrl){
+    public SqlitePaymentRepository(String databaseUrl) {
         this.databaseConnection = new DatabaseConnection(databaseUrl);
         createTable();
     }
 
-    private void createTable(){
+    private void createTable() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS payments(
-                payment_id TEXT PRIMARY KEY,
-                amount TEXT NOT NULL,
-                payment_method TEXT NOT NULL,
-                status TEXT NOT NULL
+                    payment_id TEXT PRIMARY KEY,
+                    amount TEXT NOT NULL,
+                    payment_method TEXT NOT NULL,
+                    status TEXT NOT NULL
                 )
                 """;
 
         try (Connection connection = databaseConnection.getConnection();
-        Statement statement = connection.createStatement()){
+             Statement statement = connection.createStatement()) {
 
-        statement.execute(sql);
+            statement.execute(sql);
 
-        }catch (SQLException exception){
+        } catch (SQLException exception) {
             throw new IllegalArgumentException(
                     "Could not create payments table",
                     exception
@@ -44,16 +45,17 @@ public class SqlitePaymentRepository implements PaymentRepository {
         }
     }
 
-    public void save(Payment payment){
-        if(payment == null){
+    @Override
+    public void save(Payment payment) {
+        if (payment == null) {
             throw new NullPointerException("Payment cannot be null");
         }
 
         String sql = """
-                INSERT INTO payments (payment_id, amount, payment_method, status
-                )
+                INSERT INTO payments (payment_id, amount, payment_method, status)
                 VALUES (?, ?, ?, ?)
                 """;
+
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -64,19 +66,21 @@ public class SqlitePaymentRepository implements PaymentRepository {
 
             statement.executeUpdate();
 
-        }catch (SQLException exception){
+        } catch (SQLException exception) {
             if (exception.getMessage() != null
-            && exception.getMessage().contains("UNIQUE constraint failed")){
+                    && exception.getMessage().contains("UNIQUE constraint failed")) {
                 throw new IllegalArgumentException(
                         "Payment ID already exists: " + payment.getPaymentId(),
                         exception
                 );
             }
-            throw new IllegalArgumentException("Could not save payment", exception);
 
+            throw new IllegalArgumentException("Could not save payment", exception);
         }
     }
-    public Optional<Payment> findById(String paymentId){
+
+    @Override
+    public Optional<Payment> findById(String paymentId) {
         String sql = """
                 SELECT payment_id, amount, payment_method, status
                 FROM payments
@@ -84,12 +88,12 @@ public class SqlitePaymentRepository implements PaymentRepository {
                 """;
 
         try (Connection connection = databaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)){
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-             statement.setString(1, paymentId);
+            statement.setString(1, paymentId);
 
-            try (ResultSet resultSet = statement.executeQuery()){
-                if(!resultSet.next()){
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
                     return Optional.empty();
                 }
 
@@ -110,9 +114,50 @@ public class SqlitePaymentRepository implements PaymentRepository {
                 return Optional.of(payment);
             }
 
-        }catch (SQLException exception){
-            throw  new IllegalArgumentException(
+        } catch (SQLException exception) {
+            throw new IllegalArgumentException(
                     "Could not find payment",
+                    exception
+            );
+        }
+    }
+
+    @Override
+    public List<Payment> findAll() {
+        String sql = """
+                SELECT payment_id, amount, payment_method, status
+                FROM payments
+                """;
+
+        List<Payment> payments = new ArrayList<>();
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Payment payment = new Payment(
+                        resultSet.getString("payment_id"),
+                        new BigDecimal(resultSet.getString("amount")),
+                        PaymentMethod.valueOf(
+                                resultSet.getString("payment_method")
+                        )
+                );
+
+                payment.setStatus(
+                        PaymentStatus.valueOf(
+                                resultSet.getString("status")
+                        )
+                );
+
+                payments.add(payment);
+            }
+
+            return payments;
+
+        } catch (SQLException exception) {
+            throw new IllegalArgumentException(
+                    "Could not retrieve payments",
                     exception
             );
         }

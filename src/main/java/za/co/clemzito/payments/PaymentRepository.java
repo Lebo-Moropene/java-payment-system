@@ -1,6 +1,7 @@
 
 package za.co.clemzito.payments;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -11,4 +12,6 @@ public interface PaymentRepository {
     void save(Payment payment);
 
     Optional<Payment> findById(String paymentId);
+
+    List<Payment> findAll();
 }
