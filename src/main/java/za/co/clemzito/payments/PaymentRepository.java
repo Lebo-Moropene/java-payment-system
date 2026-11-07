@@ -14,4 +14,5 @@ public interface PaymentRepository {
     Optional<Payment> findById(String paymentId);
 
     List<Payment> findAll();
+    List<Payment> findByStatus(PaymentStatus status);
 }

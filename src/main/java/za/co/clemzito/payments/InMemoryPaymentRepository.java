@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class InMemoryPaymentRepository implements PaymentRepository {
 
@@ -44,4 +45,17 @@ public class InMemoryPaymentRepository implements PaymentRepository {
     public List<Payment> findAll() {
         return List.copyOf(payments.values());
     }
+
+    @Override
+    public List<Payment> findByStatus(PaymentStatus status) {
+        Objects.requireNonNull(status, "Payment status cannot be null");
+
+        return payments.values()
+                .stream()
+                .filter(payment -> payment.getStatus() == status)
+                .collect(Collectors.toList());
+    }
+
+
+
 }

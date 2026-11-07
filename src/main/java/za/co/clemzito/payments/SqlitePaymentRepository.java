@@ -162,4 +162,56 @@ public class SqlitePaymentRepository implements PaymentRepository {
             );
         }
     }
+
+    @Override
+    public List<Payment> findByStatus(PaymentStatus status) {
+
+        if (status == null) {
+            throw new NullPointerException("Payment status cannot be null");
+        }
+
+        String sql = """
+            SELECT payment_id, amount, payment_method, status
+            FROM payments
+            WHERE status = ?
+            """;
+
+        List<Payment> payments = new ArrayList<>();
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, status.name());
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+
+                    Payment payment = new Payment(
+                            resultSet.getString("payment_id"),
+                            new BigDecimal(resultSet.getString("amount")),
+                            PaymentMethod.valueOf(
+                                    resultSet.getString("payment_method")
+                            )
+                    );
+
+                    payment.setStatus(
+                            PaymentStatus.valueOf(
+                                    resultSet.getString("status")
+                            )
+                    );
+
+                    payments.add(payment);
+                }
+            }
+
+            return payments;
+
+        } catch (SQLException exception) {
+            throw new IllegalArgumentException(
+                    "Could not retrieve payments by status",
+                    exception
+            );
+        }
+    }
 }
