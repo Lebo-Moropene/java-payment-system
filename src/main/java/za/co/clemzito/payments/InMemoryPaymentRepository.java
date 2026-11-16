@@ -1,3 +1,4 @@
+
 package za.co.clemzito.payments;
 
 import java.util.HashMap;
@@ -46,6 +47,12 @@ public class InMemoryPaymentRepository implements PaymentRepository {
         return List.copyOf(payments.values());
     }
 
+    /**
+     * Summary: Retrieves payments matching the specified status from memory.
+     *
+     * @param status the payment status used to filter payments
+     * @return a list of matching payments
+     */
     @Override
     public List<Payment> findByStatus(PaymentStatus status) {
         Objects.requireNonNull(status, "Payment status cannot be null");
@@ -55,7 +62,4 @@ public class InMemoryPaymentRepository implements PaymentRepository {
                 .filter(payment -> payment.getStatus() == status)
                 .collect(Collectors.toList());
     }
-
-
-
 }

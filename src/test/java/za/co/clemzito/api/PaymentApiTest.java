@@ -7,6 +7,7 @@ import za.co.clemzito.payments.InMemoryPaymentRepository;
 import za.co.clemzito.payments.PaymentRepository;
 import za.co.clemzito.payments.PaymentService;
 
+import java.lang.ref.ReferenceQueue;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -14,6 +15,13 @@ import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+import za.co.clemzito.payments.Payment;
+import za.co.clemzito.payments.PaymentMethod;
+import za.co.clemzito.payments.PaymentStatus;
+
+import java.math.BigDecimal;
 
 public class PaymentApiTest {
 
@@ -163,4 +171,85 @@ public class PaymentApiTest {
             app.stop();
         }
     }
+
+    @Test
+    void filtersPaymentsByStatus() throws Exception{
+        PaymentRepository repository = new InMemoryPaymentRepository();
+        PaymentService service = new PaymentService(repository);
+
+        Payment successfulPayment = new Payment(
+                "PAY-FILTER-001",
+                new BigDecimal("500.00"),
+                PaymentMethod.CREDIT_CARD
+        );
+        successfulPayment.setStatus((PaymentStatus.SUCCESSFUL));
+
+        Payment pendingPayment = new Payment(
+                "PAY-FILTER-002",
+                new BigDecimal("250.00"),
+                PaymentMethod.DEBIT_CARD
+        );
+
+        pendingPayment.setStatus(PaymentStatus.PENDING);
+
+        repository.save(successfulPayment);
+        repository.save(pendingPayment);
+
+        Javalin app = new PaymentApi(service, repository).getApp();
+
+        app.start(0);
+
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(
+                            "http://localhost:" + app.port()
+                                + "/payments?status=SUCCESSFUL"
+                    ))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertEquals(200, response.statusCode());
+            assertTrue(response.body().contains("PAY-FILTER-001"));
+            assertTrue(!response.body().contains("PAY-FILTER-002"));
+
+        } finally {
+            app.stop();
+        }
+    }
+
+    @Test
+    void rejectsInvalidPaymentStatus() throws Exception{
+        PaymentRepository repository =  new InMemoryPaymentRepository();
+        PaymentService service = new PaymentService(repository);
+
+        Javalin app = new PaymentApi(service, repository).getApp();
+
+        app.start(0);
+
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(
+                            "http://localhost:" + app.port()
+                                    + "/payments?status=UNKNOWN"
+                    ))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertEquals(400, response.statusCode());
+            assertTrue(response.body().contains("Invalid payment status"));
+        }finally{
+            app.stop();
+        }
+    }
+
 }

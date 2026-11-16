@@ -163,6 +163,12 @@ public class SqlitePaymentRepository implements PaymentRepository {
         }
     }
 
+    /**
+     * Summary: Retrieves payments matching the specified status from SQLite.
+     *
+     * @param status the payment status used to filter payments
+     * @return a list of matching payments
+     */
     @Override
     public List<Payment> findByStatus(PaymentStatus status) {
 
@@ -171,10 +177,10 @@ public class SqlitePaymentRepository implements PaymentRepository {
         }
 
         String sql = """
-            SELECT payment_id, amount, payment_method, status
-            FROM payments
-            WHERE status = ?
-            """;
+                SELECT payment_id, amount, payment_method, status
+                FROM payments
+                WHERE status = ?
+                """;
 
         List<Payment> payments = new ArrayList<>();
 

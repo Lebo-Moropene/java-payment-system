@@ -2,13 +2,11 @@
 package za.co.clemzito.api;
 
 import io.javalin.Javalin;
-import za.co.clemzito.payments.Payment;
-import za.co.clemzito.payments.PaymentMethod;
-import za.co.clemzito.payments.PaymentRepository;
-import za.co.clemzito.payments.PaymentService;
+import za.co.clemzito.payments.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,9 +38,31 @@ public class PaymentApi {
         );
 
         // Retrieve all payments.
-        app.get("/payments", ctx -> {
+        app.get("/payments", ctx ->{
+            String statusParameter = ctx.queryParam("status");
 
-            List<Payment> payments = paymentRepository.findAll();
+            List<Payment> payments;
+
+            if(statusParameter == null || statusParameter.isBlank()){
+                payments = paymentRepository.findAll();
+
+            }else {
+
+                try {
+                    PaymentStatus status = PaymentStatus.valueOf(
+                            statusParameter.trim().toUpperCase(Locale.ROOT)
+                    );
+
+                    payments = paymentRepository.findByStatus(status);
+                } catch (IllegalArgumentException exception){
+
+                    ctx.status(400).json(Map.of(
+                            "error", "Invalid payment status"
+                    ));
+                    return;
+                }
+            }
+
 
             List<Map<String, Object>> response = payments.stream()
                     .map(payment -> Map.<String, Object>of(
@@ -54,6 +74,8 @@ public class PaymentApi {
                     .toList();
 
             ctx.status(200).json(response);
+
+
         });
 
         // Retrieve an existing payment by its ID.
