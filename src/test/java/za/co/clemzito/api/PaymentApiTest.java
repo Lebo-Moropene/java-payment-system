@@ -252,4 +252,49 @@ public class PaymentApiTest {
         }
     }
 
+    /**
+     * Summary: Verifies that a payment request without a payment ID is rejected.
+     */
+
+    @Test
+    void rejectsPaymentRequestWithMissingPaymentId() throws Exception {
+        PaymentRepository repository = new InMemoryPaymentRepository();
+        PaymentService service = new PaymentService(repository);
+
+        Javalin app = new PaymentApi(service, repository).getApp();
+
+        app.start(0);
+
+        try {
+            String json = """
+                    {
+                        "amount": "150.00",
+                        "paymentMethod": "DEBIT_CARD"
+                    }
+                    """;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(
+                            "http://localhost:" + app.port() + "/payments"
+
+                    ))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(
+                    request,
+                    HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertEquals(400, response.statusCode());
+            assertTrue(
+                    response.body()
+                            .contains("Invalid payment details")
+            );
+        }finally {
+            app.stop();
+        }
+    }
+
 }

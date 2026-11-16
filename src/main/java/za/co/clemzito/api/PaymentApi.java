@@ -3,7 +3,6 @@ package za.co.clemzito.api;
 
 import io.javalin.Javalin;
 import za.co.clemzito.payments.*;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
@@ -109,6 +108,16 @@ public class PaymentApi {
                 PaymentRequest request =
                         ctx.bodyAsClass(PaymentRequest.class);
 
+                if (request.paymentId == null || request.paymentId.isBlank()
+                    || request.amount == null || request.amount.isBlank()
+                    || request.paymentMethod == null || request.paymentMethod.isBlank()) {
+
+                    ctx.status(400).json(Map.of(
+                            "error", "Invalid payment details"
+                    ));
+                    return;
+                }
+
                 Payment payment = new Payment(
                         request.paymentId,
                         new BigDecimal(request.amount),
@@ -143,4 +152,5 @@ public class PaymentApi {
         public String amount;
         public String paymentMethod;
     }
+
 }
