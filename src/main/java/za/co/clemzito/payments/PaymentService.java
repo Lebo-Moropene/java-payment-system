@@ -1,7 +1,7 @@
 
 package za.co.clemzito.payments;
 
-import java.math.BigDecimal;
+
 import java.util.Objects;
 
 /**
@@ -28,12 +28,7 @@ public class PaymentService {
         }
 
 
-        if (payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            payment.setStatus(PaymentStatus.FAILED);
-
-        }else {
-            payment.setStatus(PaymentStatus.SUCCESSFUL);
-        }
+        payment.setStatus(PaymentStatus.SUCCESSFUL);
         repository.save(payment);
 
     }
