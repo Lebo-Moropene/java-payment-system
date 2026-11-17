@@ -50,6 +50,13 @@ public class Payment {
     }
 
     public void setStatus(PaymentStatus status) {
-        this.status = Objects.requireNonNull(status, "Payment status cannot be null");
+        Objects.requireNonNull(status, "Payment status cannot be null");
+
+        if(this.status != PaymentStatus.PENDING) {
+            throw new IllegalStateException(
+                    "Payment status cannot be changed after processing"
+            );
+        }
+        this.status = status;
     }
 }

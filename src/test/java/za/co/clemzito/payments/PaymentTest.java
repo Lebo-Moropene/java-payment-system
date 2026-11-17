@@ -100,5 +100,35 @@ class PaymentTest {
         assertEquals(PaymentStatus.SUCCESSFUL, payment.getStatus());
     }
 
+    @Test
+    void shouldRejectChangingSuccessfulPaymentToFailed(){
+        Payment payment = new Payment(
+                "PAY-007",
+                new BigDecimal("100.00"),
+                PaymentMethod.CREDIT_CARD
+        );
+        payment.setStatus(PaymentStatus.SUCCESSFUL);
+
+        assertThrows(IllegalStateException.class, () ->
+                payment.setStatus(PaymentStatus.FAILED)
+        );
+
+    }
+
+    @Test
+    void shouldRejectChangingFailedPaymentToSuccessful() {
+        Payment payment = new Payment(
+                "PAY-008",
+                new BigDecimal("100.00"),
+                PaymentMethod.DEBIT_CARD
+        );
+
+        payment.setStatus(PaymentStatus.FAILED);
+
+        assertThrows(IllegalStateException.class, () ->
+                payment.setStatus(PaymentStatus.SUCCESSFUL)
+        );
+    }
+
 
 }
