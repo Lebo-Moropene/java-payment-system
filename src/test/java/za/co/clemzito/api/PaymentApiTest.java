@@ -28,7 +28,7 @@ public class PaymentApiTest {
     @Test
     void healthEndpointReturnsOk() throws Exception {
         PaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Javalin app = new PaymentApi(service, repository).getApp();
 
@@ -58,7 +58,7 @@ public class PaymentApiTest {
     @Test
     void createsPaymentAndReturnsCreated() throws Exception {
         PaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Javalin app = new PaymentApi(service, repository).getApp();
 
@@ -99,7 +99,7 @@ public class PaymentApiTest {
     @Test
     void retrievesAllPayments() throws Exception {
         PaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Javalin app = new PaymentApi(service, repository).getApp();
 
@@ -175,7 +175,7 @@ public class PaymentApiTest {
     @Test
     void filtersPaymentsByStatus() throws Exception{
         PaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Payment successfulPayment = new Payment(
                 "PAY-FILTER-001",
@@ -225,7 +225,7 @@ public class PaymentApiTest {
     @Test
     void rejectsInvalidPaymentStatus() throws Exception{
         PaymentRepository repository =  new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Javalin app = new PaymentApi(service, repository).getApp();
 
@@ -259,7 +259,7 @@ public class PaymentApiTest {
     @Test
     void rejectsPaymentRequestWithMissingPaymentId() throws Exception {
         PaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Javalin app = new PaymentApi(service, repository).getApp();
 

@@ -58,7 +58,7 @@ public class PaymentStatusTest {
     @Test
     void retrievesExistingPaymentById() throws Exception {
         PaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService service = new PaymentService(repository);
+        PaymentService service = new PaymentService(repository, payment -> PaymentStatus.SUCCESSFUL);
 
         Javalin app = new PaymentApi(service, repository).getApp();
 

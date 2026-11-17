@@ -4,10 +4,19 @@ package za.co.clemzito;
 import io.javalin.Javalin;
 import za.co.clemzito.api.PaymentApi;
 import za.co.clemzito.payments.PaymentService;
+import za.co.clemzito.payments.PaymentStatus;
 import za.co.clemzito.payments.SqlitePaymentRepository;
 
+/**
+ * Starts the payment application.
+ */
 public class Main {
 
+    /**
+     * Creates the payment dependencies and starts the API server.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         String databaseUrl = "jdbc:sqlite:payments.db";
 
@@ -15,7 +24,10 @@ public class Main {
                 new SqlitePaymentRepository(databaseUrl);
 
         PaymentService paymentService =
-                new PaymentService(repository);
+                new PaymentService(
+                        repository,
+                        payment -> PaymentStatus.SUCCESSFUL
+                );
 
         PaymentApi paymentApi =
                 new PaymentApi(paymentService, repository);
