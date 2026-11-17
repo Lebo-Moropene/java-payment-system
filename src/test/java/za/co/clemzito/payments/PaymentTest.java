@@ -56,6 +56,29 @@ class PaymentTest {
     }
 
     @Test
+    void shouldRejectZeroAmount() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Payment(
+                        "PAY-001",
+                        new BigDecimal("0.00"),
+                        PaymentMethod.CREDIT_CARD
+                )
+        );
+    }
+
+    @Test
+    void shouldRejectNegativeAmount() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Payment(
+                        "PAY-002",
+                        new BigDecimal("-50.00"),
+                        PaymentMethod.CREDIT_CARD
+
+            )
+        );
+    }
+
+    @Test
     void shouldRejectNullPaymentMethod() {
         assertThrows(NullPointerException.class, () ->
                 new Payment("PAY-001", new BigDecimal("100.00"), null)
@@ -76,4 +99,6 @@ class PaymentTest {
         assertEquals(PaymentMethod.DEBIT_CARD, payment.getPaymentMethod());
         assertEquals(PaymentStatus.SUCCESSFUL, payment.getStatus());
     }
+
+
 }

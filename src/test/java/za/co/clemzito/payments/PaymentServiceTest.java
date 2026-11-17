@@ -24,38 +24,6 @@ public class PaymentServiceTest {
     }
 
     @Test
-    void shouldRejectPaymentWithZeroAmount() {
-        Payment payment = new Payment(
-                "PAY-002",
-                new BigDecimal("0.00"),
-                PaymentMethod.CREDIT_CARD
-        );
-        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService paymentService = new PaymentService(repository);
-
-        paymentService.processPayment(payment);
-
-        assertEquals(PaymentStatus.FAILED, payment.getStatus());
-    }
-
-
-    @Test
-    void shouldRejectPaymentWithNegativeAmount() {
-        Payment payment = new Payment(
-                "PAY-003",
-                new BigDecimal("-50.00"),
-                PaymentMethod.DEBIT_CARD
-        );
-
-        InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
-        PaymentService paymentService = new PaymentService(repository);
-
-        paymentService.processPayment(payment);
-
-        assertEquals(PaymentStatus.FAILED, payment.getStatus());
-    }
-
-    @Test
     void shouldRejectNullPayment() {
         InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
@@ -111,27 +79,22 @@ public class PaymentServiceTest {
     }
 
     @Test
-    void shouldRejectReprocessingFailedPayment(){
+    void shouldRejectReprocessingFailedPayment() {
         InMemoryPaymentRepository repository = new InMemoryPaymentRepository();
         PaymentService paymentService = new PaymentService(repository);
 
         Payment payment = new Payment(
                 "PAY-006",
-                new BigDecimal("0.00"),
+                new BigDecimal("100.00"),
                 PaymentMethod.CREDIT_CARD
         );
-
-        paymentService.processPayment(payment);
-
-        assertEquals(PaymentStatus.FAILED, payment.getStatus());
-        assertEquals(
-                PaymentStatus.FAILED,
-                repository.findById("PAY-006").orElseThrow().getStatus()
-        );
+        payment.setStatus(PaymentStatus.FAILED);
 
         assertThrows(
                 IllegalStateException.class,
                 () -> paymentService.processPayment(payment)
         );
     }
+
+
 }

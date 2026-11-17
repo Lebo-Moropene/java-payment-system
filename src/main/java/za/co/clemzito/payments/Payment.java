@@ -23,6 +23,9 @@ public class Payment {
         }
 
         this.amount = Objects.requireNonNull(amount, "Payment amount cannot be null");
+        if(amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Payment amount must be greater than zero");
+        }
         this.paymentMethod = Objects.requireNonNull(
                 paymentMethod,
                 "Payment method cannot be null"
